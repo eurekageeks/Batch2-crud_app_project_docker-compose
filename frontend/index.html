@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CRUD UI</title>
+<style>
+body{font-family:Arial;margin:40px}
+input,button{padding:8px;margin:5px}
+table,th,td{border:1px solid black;border-collapse:collapse;padding:10px}
+</style>
+</head>
+<body>
+
+<h2>CRUD App</h2>
+
+<input id="name" placeholder="Enter name">
+<button onclick="add()">Add</button>
+
+<table>
+<thead><tr><th>ID</th><th>Name</th><th>Action</th></tr></thead>
+<tbody id="data"></tbody>
+</table>
+
+<script>
+const API="http://localhost:5000/users";
+
+async function load(){
+ let res=await fetch(API);
+ let data=await res.json();
+ let html="";
+ data.forEach(u=>{
+  html+=`<tr>
+  <td>${u[0]}</td>
+  <td>${u[1]}</td>
+  <td>
+    <button onclick="edit(${u[0]},'${u[1]}')">Edit</button>
+    <button onclick="del(${u[0]})">Delete</button>
+  </td>
+  </tr>`;
+ });
+ document.getElementById("data").innerHTML=html;
+}
+
+async function add(){
+ let name=document.getElementById("name").value;
+ await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})});
+ load();
+}
+
+async function del(id){
+ await fetch(API+"/"+id,{method:"DELETE"});
+ load();
+}
+
+async function edit(id,old){
+ let name=prompt("New name",old);
+ if(name){
+  await fetch(API+"/"+id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})});
+  load();
+ }
+}
+
+load();
+</script>
+
+</body>
+</html>
